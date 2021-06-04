@@ -1,0 +1,31 @@
+1. setup libpam
+- run "sudo apt-get update && sudo apt-get install libpam-yubico"
+
+2. setup authorized_yubikeys list
+Create a `/etc/yubikey_mappings`, the file must contain a user name and the YubiKey token ID separated by colons (same format as the passwd file) for each user you want to allow onto the system using a YubiKey.
+
+INFO: Your YubiKey token ID is the first 12 characters from text outputted when you touch the key.
+
+The mappings should look like this, one per line:
+```
+<first user name>:<YubiKey token ID1>:<YubiKey token ID2>:….
+<second user name>:<YubiKey token ID3>:<YubiKey token ID4>:….
+```
+Example for 'root' username (on server) and one YubiKey
+```
+root:vviicdieiefi
+```
+	2.1: drag and drop authorized_yubikeys file into /etc/ssh/
+
+3. setup auth requirement
+	3.1: run "sudo nano /etc/pam.d/sshd"
+	3.2: goto https://upgrade.yubico.com/getapikey/ and generate a key
+	3.3: Then copy the client id and secret key into the fields below
+	3.2: add "auth required pam_yubico.so id={CLIENT ID] key={SECRET KEY} authfile=etc/ssh/authorized_yubikeys"
+
+4. setup sshd config
+	4.1: run "sudo nano /etc/ssh/sshd_config"
+	4.2: set ChallengeResponseAuthentication to yes
+	4.3: ensure UsePAM is set to yes
+
+5. Restart the server
